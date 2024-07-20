@@ -274,8 +274,9 @@ public static class QOI
             {
                 fixed(byte* bytes = data)
                 {
-                    byte* p = bytes + Header.SIZE;
-                    byte* p_end = bytes + data.Length - PADDING_SIZE;
+                    byte* src = bytes + Header.SIZE;
+                    byte* src_end = bytes + data.Length - PADDING_SIZE;
+                    byte* dst = pixels;
 
                     for (int px_pos = 0; px_pos < px_len; px_pos += channels)
                     {
@@ -283,22 +284,22 @@ public static class QOI
                         {
                             run--;
                         }
-                        else if (p < p_end)
+                        else if (src < src_end)
                         {
-                            int b1 = *p++;
+                            int b1 = *src++;
 
                             if (b1 == OP_RGB)
                             {
-                                px.rgba.r = *p++;
-                                px.rgba.g = *p++;
-                                px.rgba.b = *p++;
+                                px.rgba.r = *src++;
+                                px.rgba.g = *src++;
+                                px.rgba.b = *src++;
                             }
                             else if (b1 == OP_RGBA)
                             {
-                                px.rgba.r = *p++;
-                                px.rgba.g = *p++;
-                                px.rgba.b = *p++;
-                                px.rgba.a = *p++;
+                                px.rgba.r = *src++;
+                                px.rgba.g = *src++;
+                                px.rgba.b = *src++;
+                                px.rgba.a = *src++;
                             }
                             else if ((b1 & MASK_2) == OP_INDEX)
                             {
@@ -312,7 +313,7 @@ public static class QOI
                             }
                             else if ((b1 & MASK_2) == OP_LUMA)
                             {
-                                int b2 = *p++;
+                                int b2 = *src++;
                                 int vg = (b1 & 0x3f) - 32;
                                 px.rgba.r += (byte)(vg - 8 + ((b2 >> 4) & 0x0f));
                                 px.rgba.g += (byte)vg;
@@ -326,13 +327,13 @@ public static class QOI
                             index[(int)px.ColorHash % 64] = px;
                         }
 
-                        pixels[px_pos + 0] = px.rgba.r;
-                        pixels[px_pos + 1] = px.rgba.g;
-                        pixels[px_pos + 2] = px.rgba.b;
+                        *dst++ = px.rgba.r;
+                        *dst++ = px.rgba.g;
+                        *dst++ = px.rgba.b;
                         
                         if (channels == 4)
                         {
-                            pixels[px_pos + 3] = px.rgba.a;
+                            *dst++ = px.rgba.a;
                         }
                     }
                 }

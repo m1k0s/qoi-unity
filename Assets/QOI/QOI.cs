@@ -243,7 +243,7 @@ public static class QOI
         }
     }
 
-    public static bool Decode(ReadOnlySpan<byte> data, uint width, uint height, int channels, Span<byte> pixelData)
+    public static bool Decode(ReadOnlySpan<byte> data, uint width, uint height, int channels, Span<byte> pixelData, bool flipVertically = false)
     {
         if (data.Length < Header.SIZE + PADDING_SIZE || width == 0 || height == 0 || height >= PIXELS_MAX / width || channels < 3 || channels > 4)
         {

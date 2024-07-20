@@ -5,14 +5,14 @@ using System.IO;
 
 public static class QOIUnity
 {
-    public static void Read(ref QOI.Header header, ReadOnlySpan<byte> buffer, Texture2D texture, int mipLevel)
+    public static void Read(ref QOI.Header header, ReadOnlySpan<byte> buffer, Texture2D texture, int mipLevel, bool flipVertically = false)
     {
         var data = texture.GetPixelData<byte>(mipLevel);
 
         unsafe
         {
             var pixels = new Span<byte>(NativeArrayUnsafeUtility.GetUnsafePtr(data), data.Length);
-            QOI.Decode(buffer, header.width, header.height, header.channels, pixels);
+            QOI.Decode(buffer, header.width, header.height, header.channels, pixels, flipVertically);
         }
     }
     
@@ -71,7 +71,7 @@ public static class QOIUnity
         unsafe
         {
             var pixels = new ReadOnlySpan<byte>(NativeArrayUnsafeUtility.GetUnsafeReadOnlyPtr(data), data.Length);
-            length = QOI.Encode(pixels, ref header, buffer);
+            length = QOI.Encode(pixels, ref header, buffer, true);
         }
 
         return length;

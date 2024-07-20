@@ -29,7 +29,6 @@ public class Test : MonoBehaviour
                 QOIUnity.Write(texture, path);
                 Debug.Log($"Reading {texture.name} ({path})");
                 var t = QOIUnity.Read(path);
-                t.Apply(false, true);
 
                 var sprite = Sprite.Create(t, new Rect(0, 0, t.width, t.height), Vector2.zero);
                 var tile = Instantiate(contentTemplate);

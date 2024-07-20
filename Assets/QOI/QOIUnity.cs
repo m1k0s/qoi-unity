@@ -16,7 +16,7 @@ public static class QOIUnity
         }
     }
     
-    public static Texture2D Read(ReadOnlySpan<byte> buffer)
+    public static Texture2D Read(ReadOnlySpan<byte> buffer, bool updateMipmaps = false, bool makeNoLongerReadable = true)
     {
         if (QOI.DecodeHeader(buffer, out var header))
         {
@@ -25,6 +25,7 @@ public static class QOIUnity
 
             var texture = new Texture2D((int)header.width, (int)header.height, format, false, linear);
             Read(ref header, buffer, texture, 0);
+            texture.Apply(updateMipmaps, makeNoLongerReadable);
 
             return texture;
         }
@@ -32,9 +33,9 @@ public static class QOIUnity
         return null;
     }
     
-    public static Texture2D Read(string path)
+    public static Texture2D Read(string path, bool updateMipmaps = false, bool makeNoLongerReadable = true)
     {
-        return QOIUnity.Read(new ReadOnlySpan<byte>(File.ReadAllBytes(path)));
+        return QOIUnity.Read(new ReadOnlySpan<byte>(File.ReadAllBytes(path)), updateMipmaps, makeNoLongerReadable);
     }
     
     public static bool WriteHeader(Texture2D texture, out QOI.Header header)

@@ -62,9 +62,9 @@ public static class QOIUnity
         return true;
     }
 
-    public static uint Write(Texture2D texture, ref QOI.Header header, Span<byte> buffer)
+    public static uint Write(Texture2D texture, int mipLevel, ref QOI.Header header, Span<byte> buffer)
     {
-        var data = texture.GetPixelData<byte>(0);
+        var data = texture.GetPixelData<byte>(mipLevel);
         uint length;
 
         unsafe
@@ -74,6 +74,11 @@ public static class QOIUnity
         }
 
         return length;
+    }
+
+    public static uint Write(Texture2D texture, ref QOI.Header header, Span<byte> buffer)
+    {
+        return Write(texture, 0, ref header, buffer);
     }
 
     public static void Write(Texture2D texture, string path)

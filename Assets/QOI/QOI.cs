@@ -90,12 +90,22 @@ public static class QOI
             {
                 fixed(byte* bytes = data)
                 {
-                    byte* src = pixels;
+                    byte* src_line = pixels;
                     byte* dst = bytes;
+                    uint line_pos = 0;
+                    uint width = header.width;
+                    uint height = header.height;
+                    int line_offset = (int)(width * channels);
+                    if (flipVertically)
+                    {
+                        src_line += (header.height - 1) * line_offset;
+                        line_offset = -line_offset;
+                    }
+                    byte* src = src_line;
 
                     WriteUInt32(&dst, MAGIC);
-                    WriteUInt32(&dst, header.width);
-                    WriteUInt32(&dst, header.height);
+                    WriteUInt32(&dst, width);
+                    WriteUInt32(&dst, height);
                     *dst++ = header.channels;
                     *dst++ = (byte)header.colorspace;
 
@@ -110,6 +120,13 @@ public static class QOI
                         if (channels == 4)
                         {
                             px.rgba.a = *src++;
+                        }
+                        
+                        if (++line_pos == width)
+                        {
+                            line_pos = 0;
+                            src_line += line_offset;
+                            src = src_line;
                         }
 
                         if (px.v == px_prev.v)
@@ -276,7 +293,15 @@ public static class QOI
                 {
                     byte* src = bytes + Header.SIZE;
                     byte* src_end = bytes + data.Length - PADDING_SIZE;
-                    byte* dst = pixels;
+                    byte* dst_line = pixels;
+                    uint line_pos = 0;
+                    int line_offset = (int)(width * channels);
+                    if (flipVertically)
+                    {
+                        dst_line += (height - 1) * line_offset;
+                        line_offset = -line_offset;
+                    }
+                    byte* dst = dst_line;
 
                     for (int px_pos = 0; px_pos < px_len; px_pos += channels)
                     {
@@ -334,6 +359,13 @@ public static class QOI
                         if (channels == 4)
                         {
                             *dst++ = px.rgba.a;
+                        }
+                        
+                        if (++line_pos == width)
+                        {
+                            line_pos = 0;
+                            dst_line += line_offset;
+                            dst = dst_line;
                         }
                     }
                 }

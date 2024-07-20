@@ -24,7 +24,7 @@ public static class QOIUnity
             var linear = header.colorspace == QOI.Colorspace.Linear;
 
             var texture = new Texture2D((int)header.width, (int)header.height, format, false, linear);
-            Read(ref header, buffer, texture, 0);
+            Read(ref header, buffer, texture, 0, true);
             texture.Apply(updateMipmaps, makeNoLongerReadable);
 
             return texture;

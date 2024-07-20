@@ -35,7 +35,7 @@ public static class QOIUnity
     
     public static Texture2D Read(string path, bool updateMipmaps = false, bool makeNoLongerReadable = true)
     {
-        return QOIUnity.Read(new ReadOnlySpan<byte>(File.ReadAllBytes(path)), updateMipmaps, makeNoLongerReadable);
+        return Read(new ReadOnlySpan<byte>(File.ReadAllBytes(path)), updateMipmaps, makeNoLongerReadable);
     }
     
     public static bool WriteHeader(Texture2D texture, out QOI.Header header)
@@ -89,10 +89,10 @@ public static class QOIUnity
             throw new ArgumentException($"{texture.name}: not CPU readable");
         }
 
-        if(QOIUnity.WriteHeader(texture, out var header))
+        if(WriteHeader(texture, out var header))
         {
             byte[] buffer = new byte[header.MaxSize];
-            var length = QOIUnity.Write(texture, ref header, new Span<byte>(buffer));
+            var length = Write(texture, ref header, new Span<byte>(buffer));
             if (length != 0)
             {
                 using (var stream = new FileStream(path, FileMode.Create))

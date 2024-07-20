@@ -4,6 +4,17 @@ using System;
 
 public static class QOIUnity
 {
+    public static void Read(ref QOI.Header header, ReadOnlySpan<byte> buffer, Texture2D texture, int mipLevel)
+    {
+        var data = texture.GetPixelData<byte>(mipLevel);
+
+        unsafe
+        {
+            var pixels = new Span<byte>(NativeArrayUnsafeUtility.GetUnsafePtr(data), data.Length);
+            QOI.Decode(buffer, header.width, header.height, header.channels, pixels);
+        }
+    }
+    
     public static Texture2D Read(ReadOnlySpan<byte> buffer)
     {
         if (QOI.DecodeHeader(buffer, out var header))
@@ -12,15 +23,7 @@ public static class QOIUnity
             var linear = header.colorspace == QOI.Colorspace.Linear;
 
             var texture = new Texture2D((int)header.width, (int)header.height, format, false, linear);
-            var data = texture.GetPixelData<byte>(0);
-
-            unsafe
-            {
-                var pixels = new Span<byte>(NativeArrayUnsafeUtility.GetUnsafePtr(data), data.Length);
-                QOI.Decode(buffer, header.width, header.height, header.channels, pixels);
-            }
-
-            texture.Apply(false, true);
+            Read(ref header, buffer, texture, 0);
 
             return texture;
         }

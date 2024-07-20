@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Collections.LowLevel.Unsafe;
 using System;
+using System.IO;
 
 public static class QOIUnity
 {
@@ -29,6 +30,11 @@ public static class QOIUnity
         }
         
         return null;
+    }
+    
+    public static Texture2D Read(string path)
+    {
+        return QOIUnity.Read(new ReadOnlySpan<byte>(File.ReadAllBytes(path)));
     }
     
     public static bool WriteHeader(Texture2D texture, out QOI.Header header)
@@ -68,5 +74,37 @@ public static class QOIUnity
         }
 
         return length;
+    }
+
+    public static void Write(Texture2D texture, string path)
+    {
+        if (!texture.isReadable)
+        {
+            throw new ArgumentException($"{texture.name}: not CPU readable");
+        }
+
+        if(QOIUnity.WriteHeader(texture, out var header))
+        {
+            byte[] buffer = new byte[header.MaxSize];
+            var length = QOIUnity.Write(texture, ref header, new Span<byte>(buffer));
+            if (length != 0)
+            {
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    using (var writer = new BinaryWriter(stream))
+                    {
+                        writer.Write(buffer, 0, (int)length);
+                    }
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException($"{texture.name}: encoding failed");
+            }
+        }
+        else
+        {
+            throw new ArgumentException($"{texture.name}: unsupported texture format {texture.format}");
+        }
     }
 }

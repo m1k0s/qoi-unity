@@ -12,3 +12,6 @@ Implementation is split into:
     * encoding does require the source `Texture2D` to be readable
 
 The sample Unity project includes a test UGUI scene that loads, displays & saves the test images referenced in https://qoiformat.org/
+
+Prerquisites:
+* Tested with Unity 2021.3.16f1
